@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文章详情</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Noto+Serif+SC:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .post-wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2.4rem 1rem 3.2rem;
+      }
+      .post-title {
+        margin: 0;
+      }
+      .post-summary {
+        color: var(--muted);
+      }
+      .post-content {
+        font-family: "Noto Serif SC", serif;
+        white-space: pre-wrap;
+        line-height: 1.9;
+        font-size: 1.06rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <main class="post-wrap">
+      <section class="card">
+        <p><a href="index.html">返回首页</a></p>
+        <h1 id="title" class="post-title">加载中...</h1>
+        <p id="summary" class="post-summary"></p>
+        <article id="content" class="post-content"></article>
+      </section>
+    </main>
+
+    <script>
+      function getSlug() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("slug") || "";
+      }
+
+      async function boot() {
+        const slug = getSlug();
+        const titleEl = document.getElementById("title");
+        const summaryEl = document.getElementById("summary");
+        const contentEl = document.getElementById("content");
+
+        if (!slug) {
+          titleEl.textContent = "文章不存在";
+          summaryEl.textContent = "缺少 slug 参数。";
+          return;
+        }
+
+        try {
+          const response = await fetch("content/site.json");
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const data = await response.json();
+          const post = (data.writing || []).find((item) => item.slug === slug);
+
+          if (!post) {
+            titleEl.textContent = "文章不存在";
+            summaryEl.textContent = `未找到 slug = ${slug} 的文章。`;
+            return;
+          }
+
+          titleEl.textContent = post.title || "Untitled";
+          summaryEl.textContent = post.summary || "";
+          contentEl.textContent = post.content || "这篇文章还没有正文内容。你可以在编辑器里补充。";
+          document.title = `${post.title || "文章详情"} | sdonfint`;
+        } catch (error) {
+          titleEl.textContent = "加载失败";
+          summaryEl.textContent = String(error);
+        }
+      }
+
+      boot();
+    </script>
+  </body>
+</html>

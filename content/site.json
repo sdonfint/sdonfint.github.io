@@ -1,0 +1,100 @@
+{
+  "profile": {
+    "name": "sdonfint",
+    "title": "Builder / Researcher / Writer",
+    "tagline": "把好奇心变成长期作品。",
+    "intro": "你好，我是 sdonfint。这是我的数字工作台：记录项目、思考和持续迭代。",
+    "location": "Nanjing, China",
+    "email": "hello@example.com",
+    "githubUsername": "sdonfint",
+    "socials": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/sdonfint"
+      },
+      {
+        "label": "Blog",
+        "url": "https://sdonfint.github.io"
+      },
+      {
+        "label": "X",
+        "url": "https://x.com/"
+      }
+    ]
+  },
+  "resume": {
+    "summary": "我专注于技术实现、产品思维与内容表达，擅长把复杂问题转化为可执行方案。",
+    "skills": ["JavaScript", "Web Frontend", "AI Workflow", "Technical Writing"],
+    "highlights": [
+      "独立搭建并持续迭代个人 GitHub Pages 主页",
+      "建立项目展示与内容沉淀并行的个人输出系统",
+      "将技术学习过程结构化为长期可复用文档"
+    ],
+    "fileUrl": "#"
+  },
+  "about": [
+    "我关注技术、设计和表达之间的交叉点。",
+    "我希望做的事情是：把复杂问题拆解清楚，再用简单直接的方式呈现出来。",
+    "这个主页会持续更新，作为我的公开实验日志。"
+  ],
+  "projects": [
+    {
+      "name": "Project Atlas",
+      "year": "2026",
+      "description": "一个面向个人学习的知识组织实验。",
+      "link": "https://github.com/",
+      "tags": ["Knowledge", "Productivity", "Open Source"]
+    },
+    {
+      "name": "Signal Notes",
+      "year": "2025",
+      "description": "把碎片信息转为可复用洞察的轻量笔记流。",
+      "link": "https://github.com/",
+      "tags": ["Note", "Workflow"]
+    }
+  ],
+  "timeline": [
+    {
+      "period": "2026 - Now",
+      "title": "Personal Website 2.0",
+      "org": "sdonfint.github.io",
+      "description": "把主页升级为可编辑的内容系统。"
+    },
+    {
+      "period": "2025",
+      "title": "Learning Sprint",
+      "org": "Self-directed",
+      "description": "集中投入在 AI、前端和写作表达。"
+    }
+  ],
+  "now": [
+    {
+      "label": "正在进行",
+      "value": "搭建长期可维护的个人主页"
+    },
+    {
+      "label": "近期关注",
+      "value": "AI 工具链、信息组织、写作体系"
+    },
+    {
+      "label": "长期方向",
+      "value": "做可持续输出的个人作品库"
+    }
+  ],
+  "writing": [
+    {
+      "title": "如何让个人主页真正有用",
+      "summary": "从名片页到作品系统的三步升级。",
+      "slug": "homepage-useful",
+      "url": "",
+      "content": "很多个人主页像一张静态名片。\n\n更好的做法是让主页成为作品系统：\n1. 说明你是谁、在做什么\n2. 展示项目与可验证成果\n3. 持续写作，记录你的思考路径\n\n当主页具备持续更新能力时，它会越来越有价值。"
+    },
+    {
+      "title": "我在构建什么样的学习系统",
+      "summary": "把输入、理解、输出串成一条链。",
+      "slug": "learning-system",
+      "url": "",
+      "content": "我的学习系统分成三层：\n\n输入层：读书、看论文、做笔记。\n理解层：重写、归纳、教给别人。\n输出层：做项目、写文章、公开迭代。\n\n这样做的关键是长期复利，而不是一次性冲刺。"
+    }
+  ]
+}

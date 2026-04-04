@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>主页编辑器</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .admin-wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem;
+      }
+      .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+      }
+      .field {
+        display: grid;
+        gap: 0.35rem;
+      }
+      .field input,
+      .field textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 0.6rem 0.7rem;
+        font: inherit;
+        background: #fff;
+      }
+      .field textarea {
+        min-height: 90px;
+      }
+      .items {
+        display: grid;
+        gap: 0.7rem;
+      }
+      .item {
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        padding: 0.7rem;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+      }
+      button {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        padding: 0.55rem 0.9rem;
+        font: inherit;
+        cursor: pointer;
+      }
+      button.primary {
+        border-color: var(--accent);
+        color: #fff;
+        background: var(--accent);
+      }
+      pre {
+        background: #1f1d1a;
+        color: #f4efe6;
+        border-radius: 12px;
+        padding: 0.8rem;
+        overflow: auto;
+        white-space: pre-wrap;
+        max-height: 260px;
+      }
+      @media (max-width: 720px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <main class="admin-wrap">
+      <section class="card">
+        <h1>个人主页编辑器</h1>
+        <p>
+          你只需要填表，然后点击“下载 JSON”或“发布到 GitHub”。主页会自动读取
+          <strong>content/site.json</strong>。
+        </p>
+        <p><a href="index.html">返回主页预览</a></p>
+      </section>
+
+      <section class="card admin-grid">
+        <h2>基础信息</h2>
+        <div class="form-row">
+          <label class="field">昵称<input id="name" /></label>
+          <label class="field">头衔<input id="title" /></label>
+        </div>
+        <label class="field">一句话标签<input id="tagline" /></label>
+        <label class="field">个人介绍<textarea id="intro"></textarea></label>
+        <div class="form-row">
+          <label class="field">所在地<input id="location" /></label>
+          <label class="field">邮箱<input id="email" /></label>
+        </div>
+        <div class="form-row">
+          <label class="field">GitHub 用户名<input id="githubUsername" placeholder="例如 sdonfint" /></label>
+          <label class="field">简历链接<input id="resumeFileUrl" placeholder="例如 https://.../resume.pdf" /></label>
+        </div>
+      </section>
+
+      <section class="card admin-grid">
+        <div class="section-head">
+          <h2>社交链接 Socials</h2>
+          <button id="addSocial" type="button">+ 新增社交链接</button>
+        </div>
+        <div id="socials" class="items"></div>
+      </section>
+
+      <section class="card admin-grid">
+        <h2>About 段落（每行一段）</h2>
+        <label class="field"><textarea id="aboutLines"></textarea></label>
+      </section>
+
+      <section class="card admin-grid">
+        <h2>简历 Resume</h2>
+        <label class="field">简历摘要<textarea id="resumeSummary"></textarea></label>
+        <label class="field">技能（每行一个）<textarea id="resumeSkills"></textarea></label>
+        <label class="field">亮点经历（每行一条）<textarea id="resumeHighlights"></textarea></label>
+      </section>
+
+      <section class="card admin-grid">
+        <div class="section-head">
+          <h2>项目 Projects</h2>
+          <button id="addProject" type="button">+ 新增项目</button>
+        </div>
+        <div id="projects" class="items"></div>
+      </section>
+
+      <section class="card admin-grid">
+        <div class="section-head">
+          <h2>经历 Timeline</h2>
+          <button id="addTimeline" type="button">+ 新增经历</button>
+        </div>
+        <div id="timeline" class="items"></div>
+      </section>
+
+      <section class="card admin-grid">
+        <div class="section-head">
+          <h2>写作 Writing</h2>
+          <button id="addWriting" type="button">+ 新增文章</button>
+        </div>
+        <p class="meta">如果留空文章链接 URL，会自动使用 slug 生成站内文章页。</p>
+        <div id="writing" class="items"></div>
+      </section>
+
+      <section class="card admin-grid">
+        <h2>现在在做什么（Now）</h2>
+        <label class="field">每行格式：标签|内容<textarea id="nowLines"></textarea></label>
+      </section>
+
+      <section class="card admin-grid">
+        <h2>发布设置（可选）</h2>
+        <div class="form-row">
+          <label class="field">Owner<input id="ghOwner" placeholder="例如 sdonfint" /></label>
+          <label class="field">Repo<input id="ghRepo" placeholder="例如 sdonfint.github.io" /></label>
+        </div>
+        <div class="form-row">
+          <label class="field">Branch<input id="ghBranch" value="main" /></label>
+          <label class="field">Token<input id="ghToken" type="password" placeholder="GitHub Personal Access Token" /></label>
+        </div>
+        <p class="meta">Token 不会自动上传，只在本页面内存中使用。</p>
+      </section>
+
+      <section class="card admin-grid">
+        <div class="actions">
+          <button id="reload" type="button">从 site.json 重新读取</button>
+          <button id="download" type="button">下载 JSON</button>
+          <button id="publish" class="primary" type="button">发布到 GitHub</button>
+        </div>
+        <pre id="preview"></pre>
+        <p id="status" class="meta"></p>
+      </section>
+    </main>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

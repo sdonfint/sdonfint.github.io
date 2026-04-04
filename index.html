@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sdonfint | 个人主页</title>
+    <meta name="description" content="sdonfint 的个人主页与作品空间" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Noto+Serif+SC:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <header class="hero">
+      <div class="hero-left">
+        <p class="eyebrow">Personal Base</p>
+        <h1 id="name">Loading...</h1>
+        <p id="title" class="title"></p>
+        <p id="tagline" class="tagline"></p>
+        <p id="intro" class="intro"></p>
+        <div id="socials" class="socials"></div>
+      </div>
+      <aside class="hero-right card">
+        <h2>Now</h2>
+        <div id="now-list" class="now-list"></div>
+        <p class="meta" id="location"></p>
+      </aside>
+    </header>
+
+    <main class="layout">
+      <section class="card span-5" aria-labelledby="about-heading">
+        <h2 id="about-heading">About</h2>
+        <div id="about"></div>
+      </section>
+
+      <section class="card span-7" aria-labelledby="projects-heading">
+        <div class="section-head">
+          <h2 id="projects-heading">Projects</h2>
+          <a class="admin-link" href="admin.html">编辑内容</a>
+        </div>
+        <div id="projects" class="project-list"></div>
+      </section>
+
+      <section class="card span-5" aria-labelledby="resume-heading">
+        <h2 id="resume-heading">Resume</h2>
+        <p id="resume-summary" class="subline"></p>
+        <div id="resume-skills" class="tags"></div>
+        <div id="resume-highlights" class="timeline"></div>
+        <p><a id="resume-file" href="#" target="_blank" rel="noopener noreferrer">查看完整简历</a></p>
+      </section>
+
+      <section class="card span-7" aria-labelledby="github-heading">
+        <h2 id="github-heading">GitHub Projects</h2>
+        <p id="github-status" class="meta"></p>
+        <div id="github-projects" class="project-list"></div>
+      </section>
+
+      <section class="card span-7" aria-labelledby="timeline-heading">
+        <h2 id="timeline-heading">Timeline</h2>
+        <div id="timeline" class="timeline"></div>
+      </section>
+
+      <section class="card span-5" aria-labelledby="writing-heading">
+        <h2 id="writing-heading">Blog</h2>
+        <div id="writing" class="writing-list"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>© <span id="year"></span> sdonfint. Built for long-term iteration.</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
