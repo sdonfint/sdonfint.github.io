@@ -22,7 +22,7 @@
       colSpacing: 50,
       padLeft: 80,
       padRight: 120,
-      cycleGap: 80,
+      cycleGap: 400,
       nodeW: 75,
       nodeH: 30,
       topMargin: 0.18,
@@ -71,7 +71,9 @@
         }
       });
       
-      const totalW = x + CFG.padRight;
+      const finishedCycle = nodes.length % CFG.wave.length === 0;
+      const farTail = finishedCycle ? 1400 : 520;
+      const totalW = x + CFG.padRight + farTail;
       map.style.width = totalW + 'px';
       const drift = measureAlignmentDrift();
       const correctedPts = pts.map((p) => ({

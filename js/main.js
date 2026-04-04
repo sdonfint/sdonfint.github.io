@@ -13,6 +13,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabPanels     = document.querySelectorAll('.tab-panel');
   const meshCanvas    = document.getElementById('meshCanvas');
 
+  const aboutMarkdownPreview = document.getElementById('aboutMarkdownPreview');
+  const blogMarkdownPreview = document.getElementById('blogMarkdownPreview');
+  const blogMarkdownToc = document.getElementById('blogMarkdownToc');
+  const blogPostModal = document.getElementById('blogPostModal');
+  const blogPostModalBackdrop = document.getElementById('blogPostModalBackdrop');
+  const blogPostClose = document.getElementById('blogPostClose');
+  const blogPostTitle = document.getElementById('blogPostTitle');
+  const mdImageModal = document.getElementById('mdImageModal');
+  const mdImageModalBackdrop = document.getElementById('mdImageModalBackdrop');
+  const mdImageModalClose = document.getElementById('mdImageModalClose');
+  const mdImageModalImg = document.getElementById('mdImageModalImg');
+
   /* ===========================================================
      1. MESH GRADIENT (Landing page)
      =========================================================== */
@@ -54,6 +66,293 @@ document.addEventListener('DOMContentLoaded', () => {
   initMeshGradient();
 
   /* ===========================================================
+     1.2 IMAGE RESOLVER (multi-format)
+     =========================================================== */
+  const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    const IMAGE_CACHE_BUSTER = String(Date.now());
+
+  function hasFileExtension(path) {
+    return /\.[a-zA-Z0-9]+$/.test(path);
+  }
+
+  function buildImageCandidates(basePath) {
+    if (!basePath) return [];
+    if (hasFileExtension(basePath)) return [basePath];
+    return IMAGE_EXTS.map((ext) => basePath + '.' + ext);
+  }
+
+  function withCacheBuster(path) {
+    const sep = path.includes('?') ? '&' : '?';
+    return path + sep + 'v=' + IMAGE_CACHE_BUSTER;
+  }
+
+  function canLoadImage(path) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = path;
+    });
+  }
+
+  async function resolveFirstImage(basePath) {
+    const candidates = buildImageCandidates(basePath);
+    for (const candidate of candidates) {
+      const busted = withCacheBuster(candidate);
+      if (await canLoadImage(busted)) return busted;
+    }
+    return '';
+  }
+
+  async function initDynamicImages() {
+    const bgEls = Array.from(document.querySelectorAll('[data-image-base]'));
+    for (const bgEl of bgEls) {
+      const base = bgEl.dataset.imageBase || '';
+      const src = await resolveFirstImage(base);
+      if (src) {
+        bgEl.style.backgroundImage = "url('" + src + "')";
+        bgEl.classList.add('has-image');
+      }
+    }
+  }
+
+  initDynamicImages();
+
+  /* ===========================================================
+     1.5 MARKDOWN PREVIEW
+     =========================================================== */
+  const defaultAboutMarkdown = [
+    '# 你好，我是你的名字',
+    '',
+    '未能加载 `about.md`，当前显示的是默认简介。',
+    '',
+    '你可以直接编辑根目录的 `about.md` 并刷新页面。'
+  ].join('\n');
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderMarkdown(mdText) {
+    if (window.marked && typeof window.marked.parse === 'function') {
+      return window.marked.parse(mdText);
+    }
+    return '<pre><code>' + escapeHtml(mdText) + '</code></pre>';
+  }
+
+  function makeHeadingId(text, usedIds) {
+    const base = String(text || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^\w\u4e00-\u9fa5\s-]/g, '')
+      .replace(/\s+/g, '-') || 'section';
+
+    let id = base;
+    let idx = 2;
+    while (usedIds.has(id)) {
+      id = base + '-' + idx;
+      idx += 1;
+    }
+    usedIds.add(id);
+    return id;
+  }
+
+  function applyCodeHighlight(container) {
+    if (!container || !window.hljs || typeof window.hljs.highlightElement !== 'function') return;
+    container.querySelectorAll('pre code').forEach((codeEl) => {
+      window.hljs.highlightElement(codeEl);
+    });
+  }
+
+  function renderMarkdownInto(previewEl, tocEl, mdText) {
+    if (!previewEl) return;
+    previewEl.innerHTML = renderMarkdown(mdText);
+
+    const usedIds = new Set();
+    const headings = Array.from(previewEl.querySelectorAll('h1, h2, h3'));
+    headings.forEach((heading) => {
+      if (!heading.id) {
+        heading.id = makeHeadingId(heading.textContent, usedIds);
+      } else {
+        usedIds.add(heading.id);
+      }
+    });
+
+    applyCodeHighlight(previewEl);
+
+    if (!tocEl) return;
+    tocEl.innerHTML = '';
+
+    const tocTitle = document.createElement('div');
+    tocTitle.className = 'markdown-toc-title';
+    tocTitle.textContent = '目录';
+    tocEl.appendChild(tocTitle);
+
+    if (!headings.length) {
+      const empty = document.createElement('div');
+      empty.className = 'toc-empty';
+      empty.textContent = '该文档没有可跳转标题';
+      tocEl.appendChild(empty);
+      return;
+    }
+
+    headings.forEach((heading, index) => {
+      const link = document.createElement('a');
+      const level = Number(heading.tagName.slice(1));
+      link.className = 'toc-link toc-level-' + level;
+      link.href = '#' + heading.id;
+      link.textContent = heading.textContent || ('章节 ' + (index + 1));
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        tocEl.querySelectorAll('.toc-link').forEach((el) => el.classList.remove('active'));
+        link.classList.add('active');
+      });
+      tocEl.appendChild(link);
+    });
+  }
+
+  function setActiveBlogNode(node) {
+    const nodes = document.querySelectorAll('#blogMap .blog-node');
+    nodes.forEach((n) => n.classList.remove('active'));
+    if (node) node.classList.add('active');
+  }
+
+  function openBlogPostModal() {
+    if (!blogPostModal) return;
+    blogPostModal.classList.add('visible');
+    blogPostModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeBlogPostModal() {
+    if (!blogPostModal) return;
+    blogPostModal.classList.remove('visible');
+    blogPostModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function openMarkdownImageModal(src, altText) {
+    if (!mdImageModal || !mdImageModalImg || !src) return;
+    mdImageModalImg.src = src;
+    mdImageModalImg.alt = altText || 'Markdown image preview';
+    mdImageModal.classList.add('visible');
+    mdImageModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeMarkdownImageModal() {
+    if (!mdImageModal || !mdImageModalImg) return;
+    mdImageModal.classList.remove('visible');
+    mdImageModal.setAttribute('aria-hidden', 'true');
+    mdImageModalImg.removeAttribute('src');
+  }
+
+  function initMarkdownImageLightbox() {
+    document.addEventListener('click', (e) => {
+      const img = e.target.closest('.markdown-preview img');
+      if (!img) return;
+      e.preventDefault();
+      openMarkdownImageModal(img.currentSrc || img.src, img.alt || 'Markdown image preview');
+    });
+
+    if (mdImageModalBackdrop) {
+      mdImageModalBackdrop.addEventListener('click', () => closeMarkdownImageModal());
+    }
+
+    if (mdImageModalClose) {
+      mdImageModalClose.addEventListener('click', () => closeMarkdownImageModal());
+    }
+  }
+
+  function loadBlogPostFromPath(path, displayName, activeNode) {
+    if (!path || !blogMarkdownPreview) return;
+
+    fetch(path, { cache: 'no-cache' })
+      .then((resp) => {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.text();
+      })
+      .then((content) => {
+        renderMarkdownInto(blogMarkdownPreview, blogMarkdownToc, content);
+        if (blogPostTitle) blogPostTitle.textContent = displayName;
+        setActiveBlogNode(activeNode || null);
+        openBlogPostModal();
+      })
+      .catch(() => {
+        const fallback = [
+          '# 文档加载失败',
+          '',
+          '无法读取：`' + path + '`',
+          '',
+          '- 请确认该 Markdown 文件存在。',
+          '- 如果你正在使用 file:// 直接打开页面，请改为本地静态服务器或 GitHub Pages 访问。'
+        ].join('\n');
+        renderMarkdownInto(blogMarkdownPreview, blogMarkdownToc, fallback);
+        if (blogPostTitle) blogPostTitle.textContent = displayName;
+        openBlogPostModal();
+      });
+  }
+
+  function initBlogNodeMarkdownBinding() {
+    const nodes = Array.from(document.querySelectorAll('#blogMap .blog-node[data-md]'));
+    if (!nodes.length) return;
+
+    nodes.forEach((node) => {
+      const mdPath = node.dataset.md;
+      const title = (node.querySelector('.node-popup h3') || node.querySelector('.node-label'))?.textContent || mdPath;
+      const bindOpen = (el) => {
+        if (!el) return;
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          loadBlogPostFromPath(mdPath, title, node);
+        });
+      };
+
+      bindOpen(node);
+      bindOpen(node.querySelector('.node-popup a'));
+    });
+
+    if (blogPostClose) {
+      blogPostClose.addEventListener('click', () => closeBlogPostModal());
+    }
+
+    if (blogPostModalBackdrop) {
+      blogPostModalBackdrop.addEventListener('click', () => closeBlogPostModal());
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeBlogPostModal();
+        closeMarkdownImageModal();
+      }
+    });
+  }
+
+  function initMarkdownViews() {
+    if (aboutMarkdownPreview) {
+      fetch('about.md', { cache: 'no-cache' })
+        .then((resp) => {
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          return resp.text();
+        })
+        .then((content) => {
+          renderMarkdownInto(aboutMarkdownPreview, null, content);
+        })
+        .catch(() => {
+          renderMarkdownInto(aboutMarkdownPreview, null, defaultAboutMarkdown);
+        });
+    }
+
+    initBlogNodeMarkdownBinding();
+  }
+
+  initMarkdownViews();
+  initMarkdownImageLightbox();
+
+  /* ===========================================================
      2. PARTICLES
      =========================================================== */
   (function() {
@@ -86,11 +385,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 600);
   });
 
-  backBtn.addEventListener('click', () => {
-    mainInterface.classList.remove('visible');
-    mainInterface.classList.add('hidden');
-    setTimeout(() => { landing.style.display = 'flex'; landing.classList.remove('exit'); }, 500);
-  });
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      closeBlogPostModal();
+      closeMarkdownImageModal();
+      mainInterface.classList.remove('visible');
+      mainInterface.classList.add('hidden');
+      setTimeout(() => { landing.style.display = 'flex'; landing.classList.remove('exit'); }, 500);
+    });
+  }
 
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -100,6 +403,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetId = btn.dataset.tab;
       const target = document.getElementById(targetId);
       if (target) target.classList.add('active');
+      if (targetId !== 'panelBlog') closeBlogPostModal();
+      closeMarkdownImageModal();
     });
   });
 
@@ -122,24 +427,71 @@ document.addEventListener('DOMContentLoaded', () => {
      =========================================================== */
   const blogScroll = document.getElementById('blogMapScroll');
   if (blogScroll) {
+    let wheelTargetX = blogScroll.scrollLeft;
+    let wheelRafId = 0;
+
+    function clampScrollX(x) {
+      const max = Math.max(0, blogScroll.scrollWidth - blogScroll.clientWidth);
+      return Math.max(0, Math.min(max, x));
+    }
+
+    function stopWheelAnim() {
+      if (!wheelRafId) return;
+      cancelAnimationFrame(wheelRafId);
+      wheelRafId = 0;
+    }
+
+    function runWheelAnim() {
+      const diff = wheelTargetX - blogScroll.scrollLeft;
+      if (Math.abs(diff) < 0.6) {
+        blogScroll.scrollLeft = wheelTargetX;
+        wheelRafId = 0;
+        return;
+      }
+
+      blogScroll.scrollLeft += diff * 0.18;
+      wheelRafId = requestAnimationFrame(runWheelAnim);
+    }
+
     // 滚轮 → 水平滚动
     blogScroll.addEventListener('wheel', e => {
       const panel = document.getElementById('panelBlog');
       if (!panel || !panel.classList.contains('active')) return;
       e.preventDefault();
-      blogScroll.scrollLeft += e.deltaY * 1.8;
+
+      const dominantDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      wheelTargetX = clampScrollX(wheelTargetX + dominantDelta * 1.28);
+
+      if (!wheelRafId) {
+        wheelRafId = requestAnimationFrame(runWheelAnim);
+      }
     }, { passive: false });
 
     // 拖拽滚动
     let dragging = false, sx, ss;
     blogScroll.addEventListener('mousedown', e => {
       if (e.target.closest('a')) return;
+      stopWheelAnim();
       dragging = true; sx = e.clientX; ss = blogScroll.scrollLeft; e.preventDefault();
     });
-    window.addEventListener('mousemove', e => { if (dragging) blogScroll.scrollLeft = ss - (e.clientX - sx); });
-    window.addEventListener('mouseup', () => { dragging = false; });
-    blogScroll.addEventListener('touchstart', e => { sx = e.touches[0].clientX; ss = blogScroll.scrollLeft; }, { passive: true });
-    blogScroll.addEventListener('touchmove', e => { blogScroll.scrollLeft = ss - (e.touches[0].clientX - sx); }, { passive: true });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      blogScroll.scrollLeft = ss - (e.clientX - sx);
+      wheelTargetX = clampScrollX(blogScroll.scrollLeft);
+    });
+    window.addEventListener('mouseup', () => {
+      dragging = false;
+      wheelTargetX = clampScrollX(blogScroll.scrollLeft);
+    });
+    blogScroll.addEventListener('touchstart', e => {
+      stopWheelAnim();
+      sx = e.touches[0].clientX;
+      ss = blogScroll.scrollLeft;
+    }, { passive: true });
+    blogScroll.addEventListener('touchmove', e => {
+      blogScroll.scrollLeft = ss - (e.touches[0].clientX - sx);
+      wheelTargetX = clampScrollX(blogScroll.scrollLeft);
+    }, { passive: true });
   }
 
   /* ===========================================================
@@ -161,9 +513,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!groups[tag]) groups[tag] = [];
       const title = node.querySelector('.node-popup h3');
       const label = node.querySelector('.node-label');
+      const displayTitle = title ? title.textContent : label ? label.textContent : `节点 ${i}`;
       groups[tag].push({
-        title: title ? title.textContent : label ? label.textContent : `节点 ${i}`,
-        index: i
+        title: displayTitle,
+        index: i,
+        mdPath: node.dataset.md || '',
+        node: node
       });
     });
 
@@ -182,6 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.textContent = item.title;
         link.addEventListener('click', () => {
           const scroll = document.getElementById('blogMapScroll');
+          if (!scroll) return;
           const colSpacing = 50;
           const padLeft = 80;
           const cycleGap = 80;
@@ -199,6 +555,10 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const targetX = currentX - scroll.clientWidth / 2;
           scroll.scrollTo({ left: Math.max(0, targetX), behavior: 'smooth' });
+
+          if (item.mdPath) {
+            loadBlogPostFromPath(item.mdPath, item.title, item.node || null);
+          }
         });
         group.appendChild(link);
       });
