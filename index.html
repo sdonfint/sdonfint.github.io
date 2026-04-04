@@ -1,79 +1,377 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sdonfint | 个人主页</title>
-    <meta name="description" content="sdonfint 的个人主页与作品空间" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Noto+Serif+SC:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="bg-grid" aria-hidden="true"></div>
-    <header class="hero">
-      <div class="hero-left">
-        <p class="eyebrow">Personal Base</p>
-        <h1 id="name">Loading...</h1>
-        <p id="title" class="title"></p>
-        <p id="tagline" class="tagline"></p>
-        <p id="intro" class="intro"></p>
-        <div id="socials" class="socials"></div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Portfolio</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Space+Mono:wght@400;700&family=Cormorant+Garamond:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===================== LANDING PAGE ===================== -->
+  <section id="landing" class="landing">
+    <div class="landing-image">
+      <!-- 替换为你的主图：修改 CSS 中 .landing-image 的 background-image -->
+    </div>
+    <div class="landing-gradient"></div>
+    <div class="landing-content">
+      <div class="landing-bio">
+        <h1 class="landing-name">你的名字</h1>
+        <p class="landing-subtitle">Developer / Designer / Creator</p>
+        <div class="landing-divider"></div>
+        <p class="landing-desc">
+          在这里写下你的个人简介。<br>
+          可以是一段简短的自我描述，<br>
+          关于你的兴趣、专业领域，<br>
+          以及你对这个世界的看法。
+        </p>
       </div>
-      <aside class="hero-right card">
-        <h2>Now</h2>
-        <div id="now-list" class="now-list"></div>
-        <p class="meta" id="location"></p>
-      </aside>
-    </header>
+      <button class="enter-btn" id="enterBtn">
+        <span class="enter-btn-text">进入</span>
+        <span class="enter-btn-arrow">→</span>
+      </button>
+    </div>
+    <div class="landing-particles" id="particles"></div>
+  </section>
 
-    <main class="layout">
-      <section class="card span-5" aria-labelledby="about-heading">
-        <h2 id="about-heading">About</h2>
-        <div id="about"></div>
-      </section>
+  <!-- ===================== MAIN INTERFACE ===================== -->
+  <section id="mainInterface" class="main-interface hidden">
 
-      <section class="card span-7" aria-labelledby="projects-heading">
-        <div class="section-head">
-          <h2 id="projects-heading">Projects</h2>
-          <a class="admin-link" href="admin.html">编辑内容</a>
+    <!-- === TAB: ABOUT / 个人介绍 === -->
+    <div class="tab-panel active" id="panelAbout">
+      <div class="about-scroll">
+        <div class="about-hero">
+          <div class="about-hero-overlay"></div>
+          <div class="about-hero-content">
+            <h2 class="section-label">ABOUT</h2>
+            <h1 class="about-title">关于我</h1>
+          </div>
         </div>
-        <div id="projects" class="project-list"></div>
-      </section>
 
-      <section class="card span-5" aria-labelledby="resume-heading">
-        <h2 id="resume-heading">Resume</h2>
-        <p id="resume-summary" class="subline"></p>
-        <div id="resume-skills" class="tags"></div>
-        <div id="resume-highlights" class="timeline"></div>
-        <p><a id="resume-file" href="#" target="_blank" rel="noopener noreferrer">查看完整简历</a></p>
-      </section>
+        <div class="about-body">
+          <!-- ====== 个人信息区块 ====== -->
+          <div class="about-section">
+            <div class="about-section-marker">01</div>
+            <div class="about-section-content">
+              <h3>个人简介</h3>
+              <p>
+                在这里写下你的详细个人介绍。包括你的教育背景、
+                工作经历、技术栈、兴趣爱好等等。这部分内容可以
+                自由上下滚动浏览。
+              </p>
+              <p>
+                你可以在这里详细描述你的专业领域和技术能力，
+                让访问者对你有一个全面的了解。
+              </p>
+            </div>
+          </div>
 
-      <section class="card span-7" aria-labelledby="github-heading">
-        <h2 id="github-heading">GitHub Projects</h2>
-        <p id="github-status" class="meta"></p>
-        <div id="github-projects" class="project-list"></div>
-      </section>
+          <!-- ====== 技能区块 ====== -->
+          <div class="about-section">
+            <div class="about-section-marker">02</div>
+            <div class="about-section-content">
+              <h3>技术栈</h3>
+              <div class="skill-grid">
+                <!-- 在这里添加/修改你的技能标签 -->
+                <span class="skill-tag">Python</span>
+                <span class="skill-tag">JavaScript</span>
+                <span class="skill-tag">TypeScript</span>
+                <span class="skill-tag">React</span>
+                <span class="skill-tag">Node.js</span>
+                <span class="skill-tag">C++</span>
+                <span class="skill-tag">Docker</span>
+                <span class="skill-tag">Git</span>
+                <span class="skill-tag">Linux</span>
+                <span class="skill-tag">Machine Learning</span>
+              </div>
+            </div>
+          </div>
 
-      <section class="card span-7" aria-labelledby="timeline-heading">
-        <h2 id="timeline-heading">Timeline</h2>
-        <div id="timeline" class="timeline"></div>
-      </section>
+          <!-- ====== 经历区块 ====== -->
+          <div class="about-section">
+            <div class="about-section-marker">03</div>
+            <div class="about-section-content">
+              <h3>教育与经历</h3>
+              <div class="timeline">
+                <!-- 在这里添加/修改你的经历条目 -->
+                <div class="timeline-item">
+                  <div class="timeline-date">2022 - 至今</div>
+                  <div class="timeline-info">
+                    <h4>某某大学</h4>
+                    <p>计算机科学与技术 · 本科</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">2023 夏</div>
+                  <div class="timeline-info">
+                    <h4>某某公司</h4>
+                    <p>软件开发实习生</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">2024</div>
+                  <div class="timeline-info">
+                    <h4>开源项目贡献</h4>
+                    <p>参与了若干开源项目的开发与维护</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <section class="card span-5" aria-labelledby="writing-heading">
-        <h2 id="writing-heading">Blog</h2>
-        <div id="writing" class="writing-list"></div>
-      </section>
-    </main>
+          <!-- ====== 联系方式 ====== -->
+          <div class="about-section">
+            <div class="about-section-marker">04</div>
+            <div class="about-section-content">
+              <h3>联系方式</h3>
+              <div class="contact-links">
+                <a href="mailto:your@email.com" class="contact-item">
+                  <span class="contact-icon">✉</span>
+                  <span>your@email.com</span>
+                </a>
+                <a href="https://github.com/yourusername" target="_blank" class="contact-item">
+                  <span class="contact-icon">⌘</span>
+                  <span>GitHub</span>
+                </a>
+              </div>
+            </div>
+          </div>
 
-    <footer class="footer">
-      <p>© <span id="year"></span> sdonfint. Built for long-term iteration.</p>
-    </footer>
+          <div class="about-footer">
+            <p>— EOF —</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <script src="app.js"></script>
-  </body>
+    <!-- === TAB: BLOG / 文章博客 === -->
+    <div class="tab-panel" id="panelBlog">
+      <div class="blog-header">
+        <h2 class="section-label">BLOG</h2>
+        <h1 class="blog-title">文章博客</h1>
+        <p class="blog-hint">← 滚轮左右滑动浏览 →</p>
+      </div>
+      <div class="blog-scroll" id="blogScroll">
+        <div class="blog-grid">
+          <!--
+            ====== 文章卡片 ======
+            添加新文章：复制一个 .blog-card 块，修改内容即可
+            class="blog-card size-X" 中 X 可选: 1(小) 2(中) 3(大)
+          -->
+          <div class="blog-card size-3" style="--card-bg: linear-gradient(135deg, #2d1b4e, #1a1a2e);">
+            <div class="blog-card-inner">
+              <span class="blog-card-tag">技术</span>
+              <h3 class="blog-card-title">文章标题：探索深度学习的前沿</h3>
+              <p class="blog-card-excerpt">这里是文章的简短摘要，大约一两句话即可……</p>
+              <div class="blog-card-meta">
+                <span>2026-03-15</span>
+                <a href="#" class="blog-card-link">阅读 →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="blog-card size-2" style="--card-bg: linear-gradient(135deg, #1a2a1a, #0d1f0d);">
+            <div class="blog-card-inner">
+              <span class="blog-card-tag">随笔</span>
+              <h3 class="blog-card-title">关于编程的一些思考</h3>
+              <p class="blog-card-excerpt">记录一些日常编程中遇到的问题和解决方案……</p>
+              <div class="blog-card-meta">
+                <span>2026-02-20</span>
+                <a href="#" class="blog-card-link">阅读 →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="blog-card size-1" style="--card-bg: linear-gradient(135deg, #2a1a1a, #1f0d0d);">
+            <div class="blog-card-inner">
+              <span class="blog-card-tag">笔记</span>
+              <h3 class="blog-card-title">Rust 学习笔记</h3>
+              <p class="blog-card-excerpt">Rust 语言的核心概念与实践……</p>
+              <div class="blog-card-meta">
+                <span>2026-01-10</span>
+                <a href="#" class="blog-card-link">阅读 →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="blog-card size-2" style="--card-bg: linear-gradient(135deg, #1a1a2e, #0d0d1f);">
+            <div class="blog-card-inner">
+              <span class="blog-card-tag">项目</span>
+              <h3 class="blog-card-title">从零搭建个人博客系统</h3>
+              <p class="blog-card-excerpt">使用现代前端技术栈构建一个完整的博客……</p>
+              <div class="blog-card-meta">
+                <span>2025-12-05</span>
+                <a href="#" class="blog-card-link">阅读 →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="blog-card size-1" style="--card-bg: linear-gradient(135deg, #1f2a1a, #142010);">
+            <div class="blog-card-inner">
+              <span class="blog-card-tag">生活</span>
+              <h3 class="blog-card-title">摄影记录：冬日随拍</h3>
+              <p class="blog-card-excerpt">用镜头捕捉冬天的温柔……</p>
+              <div class="blog-card-meta">
+                <span>2025-11-18</span>
+                <a href="#" class="blog-card-link">阅读 →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="blog-card size-3" style="--card-bg: linear-gradient(135deg, #2e1a1a, #1f0d0d);">
+            <div class="blog-card-inner">
+              <span class="blog-card-tag">技术</span>
+              <h3 class="blog-card-title">WebAssembly 实战指南</h3>
+              <p class="blog-card-excerpt">探索 WebAssembly 在现代 Web 开发中的应用……</p>
+              <div class="blog-card-meta">
+                <span>2025-10-22</span>
+                <a href="#" class="blog-card-link">阅读 →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="blog-card size-2" style="--card-bg: linear-gradient(135deg, #1a1f2e, #0d1220);">
+            <div class="blog-card-inner">
+              <span class="blog-card-tag">翻译</span>
+              <h3 class="blog-card-title">论文翻译：Attention Is All You Need</h3>
+              <p class="blog-card-excerpt">Transformer 架构的开创性论文中文翻译与解读……</p>
+              <div class="blog-card-meta">
+                <span>2025-09-30</span>
+                <a href="#" class="blog-card-link">阅读 →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === TAB: PROJECTS / GitHub 项目 === -->
+    <div class="tab-panel" id="panelProjects">
+      <div class="projects-scroll">
+        <div class="projects-header">
+          <h2 class="section-label">PROJECTS</h2>
+          <h1 class="projects-title">GitHub 项目</h1>
+        </div>
+
+        <div class="projects-list">
+          <!--
+            ====== 项目卡片 ======
+            添加新项目：复制一个 .project-card 块，修改内容即可
+          -->
+          <a href="https://github.com/yourusername/project1" target="_blank" class="project-card">
+            <div class="project-card-header">
+              <span class="project-icon">📦</span>
+              <span class="project-lang">Python</span>
+            </div>
+            <h3 class="project-name">project-name-1</h3>
+            <p class="project-desc">
+              项目简介：这是一个用于演示的开源项目，
+              包含了完整的功能模块和文档。
+            </p>
+            <div class="project-stats">
+              <span>⭐ 128</span>
+              <span>🔀 34</span>
+            </div>
+          </a>
+
+          <a href="https://github.com/yourusername/project2" target="_blank" class="project-card">
+            <div class="project-card-header">
+              <span class="project-icon">🛠</span>
+              <span class="project-lang">TypeScript</span>
+            </div>
+            <h3 class="project-name">awesome-tool</h3>
+            <p class="project-desc">
+              一个实用的开发工具集，帮助开发者提高生产效率。
+            </p>
+            <div class="project-stats">
+              <span>⭐ 56</span>
+              <span>🔀 12</span>
+            </div>
+          </a>
+
+          <a href="https://github.com/yourusername/project3" target="_blank" class="project-card">
+            <div class="project-card-header">
+              <span class="project-icon">🎮</span>
+              <span class="project-lang">C++</span>
+            </div>
+            <h3 class="project-name">game-engine</h3>
+            <p class="project-desc">
+              一个轻量级的 2D 游戏引擎，支持物理模拟和粒子系统。
+            </p>
+            <div class="project-stats">
+              <span>⭐ 89</span>
+              <span>🔀 21</span>
+            </div>
+          </a>
+
+          <a href="https://github.com/yourusername/project4" target="_blank" class="project-card">
+            <div class="project-card-header">
+              <span class="project-icon">🤖</span>
+              <span class="project-lang">Python</span>
+            </div>
+            <h3 class="project-name">ml-toolkit</h3>
+            <p class="project-desc">
+              机器学习工具包，集成常用的数据预处理和模型训练功能。
+            </p>
+            <div class="project-stats">
+              <span>⭐ 203</span>
+              <span>🔀 67</span>
+            </div>
+          </a>
+
+          <a href="https://github.com/yourusername/project5" target="_blank" class="project-card">
+            <div class="project-card-header">
+              <span class="project-icon">🌐</span>
+              <span class="project-lang">JavaScript</span>
+            </div>
+            <h3 class="project-name">web-components</h3>
+            <p class="project-desc">
+              一系列可复用的 Web 组件库，遵循无障碍设计标准。
+            </p>
+            <div class="project-stats">
+              <span>⭐ 45</span>
+              <span>🔀 8</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- === NAVIGATION TABS (右下角) === -->
+    <nav class="tab-nav" id="tabNav">
+      <button class="tab-btn active" data-tab="panelAbout" title="个人介绍">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 4-7 8-7s8 3 8 7"/>
+        </svg>
+        <span class="tab-label">简介</span>
+      </button>
+      <button class="tab-btn" data-tab="panelBlog" title="文章博客">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M7 8h10M7 12h6M7 16h8"/>
+        </svg>
+        <span class="tab-label">博客</span>
+      </button>
+      <button class="tab-btn" data-tab="panelProjects" title="GitHub 项目">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+        </svg>
+        <span class="tab-label">项目</span>
+      </button>
+    </nav>
+
+    <!-- 返回按钮 -->
+    <button class="back-btn" id="backBtn" title="返回首页">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </button>
+  </section>
+
+  <script src="js/main.js"></script>
+</body>
 </html>

@@ -1,62 +1,102 @@
-# sdonfint.github.io
+# 个人主页 - GitHub Pages
 
-一个可长期维护、可视化编辑的个人 GitHub Pages 主页。
+一个暗色系电影风格的个人主页，灵感来源于游戏 UI 设计。
 
-## 你现在拥有的能力
+## 目录结构
 
-- 一个已经可运行的主页：[index.html](index.html)
-- 一个可视化编辑器：[admin.html](admin.html)
-- 一个统一内容源：[content/site.json](content/site.json)
+```
+├── index.html          ← 主页面（修改个人信息、文章、项目）
+├── css/
+│   └── style.css       ← 样式文件（修改颜色、字体等）
+├── js/
+│   └── main.js         ← 交互逻辑（一般不需要修改）
+├── images/             ← 放置图片资源
+└── README.md
+```
 
-主页会自动读取 `content/site.json`，你无需修改 HTML/CSS。
+## 快速开始
 
-## 设计调研与方案依据
+1. 将此文件夹推送到 GitHub 仓库（仓库名为 `yourusername.github.io`）
+2. 在 GitHub 仓库的 Settings → Pages 中启用 GitHub Pages
+3. 访问 `https://yourusername.github.io` 即可
 
-本仓库参考了多个优秀个人主页的共同模式：
+## 如何修改内容
 
-- **Karpathy 风格**：内容密度高、时间线清晰、项目和写作可持续积累。
-- **Rauch 风格**：极简结构但信息组织非常稳定，长期可维护。
-- **Sindre 风格**：个人定位明确，社交和项目入口一眼可见。
-- **Paul Graham 风格**：内容价值优先，视觉简单也能长期有效。
+### 修改个人信息
 
-结合这些模式，本主页采用：
+打开 `index.html`，搜索以下内容并替换：
 
-- 数据驱动：页面只负责展示，内容全部放在 JSON。
-- 四大模块：About / Projects / Timeline / Writing。
-- Now 区块：持续更新你当前在做的事，增强主页“活性”。
+- **首页名字**：搜索 `你的名字`
+- **首页副标题**：搜索 `Developer / Designer / Creator`
+- **首页简介**：搜索 `在这里写下你的个人简介`
+- **详细介绍**：搜索 `个人简介` 区块中的文字
+- **技能标签**：搜索 `skill-tag`，添加或删除标签
+- **教育经历**：搜索 `timeline-item`，添加或修改条目
+- **联系方式**：搜索 `contact-item`，修改邮箱和链接
 
-## 最简单的维护方式（推荐）
+### 添加新文章
 
-### 方式 A：可视化编辑（不会写代码也能用）
+在 `index.html` 中找到 `panelBlog` 区域，复制一个 `.blog-card` 块：
 
-1. 打开 `admin.html`。
-2. 在页面里直接填写信息。
-3. 点击 `下载 JSON`：会得到 `site.json`。
-4. 在 GitHub 仓库里把 `content/site.json` 替换为新文件并提交。
+```html
+<div class="blog-card size-2" style="--card-bg: linear-gradient(135deg, #1a1a2e, #0d0d1f);">
+  <div class="blog-card-inner">
+    <span class="blog-card-tag">标签</span>
+    <h3 class="blog-card-title">文章标题</h3>
+    <p class="blog-card-excerpt">文章摘要……</p>
+    <div class="blog-card-meta">
+      <span>2026-04-01</span>
+      <a href="你的文章链接" class="blog-card-link">阅读 →</a>
+    </div>
+  </div>
+</div>
+```
 
-### 方式 B：一键发布到 GitHub（仍在编辑器内）
+**卡片尺寸**：`size-1`（小）、`size-2`（中）、`size-3`（大）
+**卡片颜色**：修改 `--card-bg` 的渐变色值
 
-1. 在 `admin.html` 的发布设置里填写：
-	- Owner：你的 GitHub 用户名
-	- Repo：`sdonfint.github.io`
-	- Branch：通常是 `main`
-	- Token：你的 GitHub Personal Access Token
-2. 点击 `发布到 GitHub`。
-3. 等待 GitHub Pages 自动更新（通常几十秒到几分钟）。
+### 添加新项目
 
-> Token 仅在当前页面内存中使用，不会自动写入仓库文件。
+在 `panelProjects` 区域复制一个 `.project-card` 块：
 
-## 文件说明
+```html
+<a href="https://github.com/你的链接" target="_blank" class="project-card">
+  <div class="project-card-header">
+    <span class="project-icon">📦</span>
+    <span class="project-lang">语言</span>
+  </div>
+  <h3 class="project-name">项目名</h3>
+  <p class="project-desc">项目描述</p>
+  <div class="project-stats">
+    <span>⭐ 数量</span>
+    <span>🔀 数量</span>
+  </div>
+</a>
+```
 
-- `index.html`: 主页结构
-- `styles.css`: 主页和编辑器共用样式
-- `app.js`: 主页渲染逻辑（读取 JSON）
-- `admin.html`: 可视化编辑器页面
-- `admin.js`: 编辑器逻辑（表单、下载、发布）
-- `content/site.json`: 你的内容数据库
+### 修改背景图片
 
-## 后续扩展建议
+1. 将图片放入 `images/` 文件夹
+2. 在 `css/style.css` 中搜索对应注释：
+   - **首页背景**：搜索 `替换你的主图`，取消注释 `background-image` 行
+   - **About 头图**：搜索 `替换 About 头图`
 
-- 增加 `content/posts/` 目录，做文章详情页。
-- 接入独立域名（例如 `yourname.com`）。
-- 在编辑器中加入头像上传与主题切换。
+### 修改主题色
+
+在 `css/style.css` 顶部的 `:root` 中修改 CSS 变量：
+
+- `--accent`：主强调色（默认暖金色 `#c8a882`）
+- `--bg-primary`：主背景色
+- `--text-primary`：主文字色
+
+## 部署到 GitHub Pages
+
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/yourusername/yourusername.github.io.git
+git push -u origin main
+```
+
+确保在仓库 Settings → Pages 中选择 `main` 分支作为部署源。
