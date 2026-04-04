@@ -4,7 +4,17 @@
 
 ## 快速开始
 
-推送至 `yourusername.github.io` 仓库，启用 GitHub Pages 即可。
+1. 将仓库命名为 `yourusername.github.io`（用户主页）或使用普通仓库名（项目主页）。
+2. 推送到 GitHub。
+3. 进入仓库 `Settings -> Pages`，选择发布分支（通常是 `main`）和目录（`/(root)`）。
+4. 等待 Pages 构建完成后访问站点。
+
+## 上线前必改项
+
+- `index.html` 中的站点标题、描述、`og:url`、`canonical`。
+- `index.html` 中的 `og:image` 与 `twitter:image`。
+- `sitemap.xml` 和 `robots.txt` 里的域名。
+- 页面中的占位内容（姓名、简介、联系方式、项目链接、博客链接）。
 
 ## 设置背景图
 
@@ -37,9 +47,26 @@
 
 ## 调整波形
 
-在 `js/main.js` 顶部修改：
+在 `js/blog-map.js` 顶部修改：
 
 ```js
-const ECG_CYCLE = [0.20, 0.50, 0.80, 0.50]; // 上→中→下→中 循环
-const COL_SPACING = 240; // 节点水平间距
+const CFG = {
+  colSpacing: 50,
+  padLeft: 80,
+  padRight: 120,
+  cycleGap: 80,
+  topMargin: 0.18,
+  bottomMargin: 0.18,
+  wave: [0.5, 0.15, 0.5, 0.85, 0.5]
+};
 ```
+
+## 本地预览建议
+
+建议使用本地静态服务器，而不是直接双击打开 `index.html`：
+
+```powershell
+python -m http.server 4173
+```
+
+然后访问 `http://127.0.0.1:4173/`。
