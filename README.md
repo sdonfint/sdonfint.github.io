@@ -16,6 +16,27 @@
 - `sitemap.xml` 和 `robots.txt` 里的域名。
 - 页面中的占位内容（姓名、简介、联系方式、项目链接、博客链接）。
 
+## 路径规范（推荐）
+
+为避免 GitHub Pages 在不同部署场景（用户主页/项目主页）出现资源加载失败，建议遵循：
+
+- 站内静态资源统一使用相对路径：`css/style.css`、`js/main.js`、`images/xxx.jpg`。
+- Markdown 文件引用图片或附件时，优先使用相对当前 Markdown 文件的路径。
+- 避免写死以 `/` 开头的站内路径（如 `/images/a.png`），项目主页场景下容易 404。
+- SEO 元标签（`canonical`、`og:url`、`og:image`）保留绝对地址，方便搜索引擎与社交平台抓取。
+
+示例（Markdown 内图片）：
+
+```md
+![架构图](../images/diagram.png)
+```
+
+示例（Markdown 内同目录附件）：
+
+```md
+[下载文档](./notes.pdf)
+```
+
 ## 设置背景图
 
 三个面板和首页都支持背景图。在 `index.html` 中找到对应的 `.panel-bg` 或 `.landing-image`，在 `style` 属性中写入：

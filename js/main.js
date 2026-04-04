@@ -5,6 +5,36 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  function getSiteBasePath() {
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    if (!parts.length) return '/';
+    const last = parts[parts.length - 1];
+    if (/\.[a-z0-9]+$/i.test(last)) parts.pop();
+    return '/' + (parts.length ? parts.join('/') + '/' : '');
+  }
+
+  const SITE_BASE_PATH = getSiteBasePath();
+
+  function resolveSitePath(path) {
+    if (!path) return path;
+    if (/^(?:[a-z]+:)?\/\//i.test(path)) return path;
+    if (/^(?:data:|mailto:|tel:|#)/i.test(path)) return path;
+    const normalized = path.replace(/^\.?\//, '').replace(/^\//, '');
+    return SITE_BASE_PATH + normalized;
+  }
+
+  function resolveMarkdownAssetPath(assetPath, markdownPath) {
+    if (!assetPath) return assetPath;
+    if (/^(?:[a-z]+:)?\/\//i.test(assetPath)) return assetPath;
+    if (/^(?:data:|mailto:|tel:|#)/i.test(assetPath)) return assetPath;
+    if (assetPath.startsWith('/')) return resolveSitePath(assetPath);
+
+    const baseDir = (markdownPath || '').replace(/[^/]*$/, '');
+    const baseUrl = new URL(resolveSitePath(baseDir), window.location.origin);
+    const resolved = new URL(assetPath, baseUrl);
+    return resolved.pathname + resolved.search + resolved.hash;
+  }
+
   const landing       = document.getElementById('landing');
   const mainInterface = document.getElementById('mainInterface');
   const enterBtn      = document.getElementById('enterBtn');
@@ -77,8 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function buildImageCandidates(basePath) {
     if (!basePath) return [];
-    if (hasFileExtension(basePath)) return [basePath];
-    return IMAGE_EXTS.map((ext) => basePath + '.' + ext);
+    if (hasFileExtension(basePath)) return [resolveSitePath(basePath)];
+    return IMAGE_EXTS.map((ext) => resolveSitePath(basePath + '.' + ext));
   }
 
   function withCacheBuster(path) {
@@ -217,6 +247,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function rewriteMarkdownAssetLinks(container, markdownPath) {
+    if (!container) return;
+
+    container.querySelectorAll('img[src]').forEach((img) => {
+      const src = img.getAttribute('src') || '';
+      const resolved = resolveMarkdownAssetPath(src, markdownPath);
+      if (resolved && resolved !== src) img.setAttribute('src', resolved);
+    });
+
+    container.querySelectorAll('a[href]').forEach((link) => {
+      const href = link.getAttribute('href') || '';
+      const resolved = resolveMarkdownAssetPath(href, markdownPath);
+      if (resolved && resolved !== href) link.setAttribute('href', resolved);
+    });
+  }
+
   function setActiveBlogNode(node) {
     const nodes = document.querySelectorAll('#blogMap .blog-node');
     nodes.forEach((n) => n.classList.remove('active'));
@@ -270,13 +316,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadBlogPostFromPath(path, displayName, activeNode) {
     if (!path || !blogMarkdownPreview) return;
 
-    fetch(path, { cache: 'no-cache' })
+    const resolvedPath = resolveSitePath(path);
+
+    fetch(resolvedPath, { cache: 'no-cache' })
       .then((resp) => {
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         return resp.text();
       })
       .then((content) => {
         renderMarkdownInto(blogMarkdownPreview, blogMarkdownToc, content);
+        rewriteMarkdownAssetLinks(blogMarkdownPreview, path);
         if (blogPostTitle) blogPostTitle.textContent = displayName;
         setActiveBlogNode(activeNode || null);
         openBlogPostModal();
@@ -285,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fallback = [
           '# 文档加载失败',
           '',
-          '无法读取：`' + path + '`',
+          '无法读取：`' + resolvedPath + '`',
           '',
           '- 请确认该 Markdown 文件存在。',
           '- 如果你正在使用 file:// 直接打开页面，请改为本地静态服务器或 GitHub Pages 访问。'
@@ -333,13 +382,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function initMarkdownViews() {
     if (aboutMarkdownPreview) {
-      fetch('about.md', { cache: 'no-cache' })
+      const aboutPath = resolveSitePath('about.md');
+      fetch(aboutPath, { cache: 'no-cache' })
         .then((resp) => {
           if (!resp.ok) throw new Error('HTTP ' + resp.status);
           return resp.text();
         })
         .then((content) => {
           renderMarkdownInto(aboutMarkdownPreview, null, content);
+          rewriteMarkdownAssetLinks(aboutMarkdownPreview, 'about.md');
         })
         .catch(() => {
           renderMarkdownInto(aboutMarkdownPreview, null, defaultAboutMarkdown);
