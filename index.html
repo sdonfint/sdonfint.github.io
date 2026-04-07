@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>你的名字 | 个人主页</title>
+  <title>sdonfint | 个人主页</title>
   <meta name="description" content="个人主页与博客地图，展示简介、项目与文章。">
-  <meta name="theme-color" content="#0a0a0f">
+  <meta name="theme-color" content="#f4f6fb">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="你的名字 | 个人主页">
+  <meta property="og:title" content="sdonfint | 个人主页">
   <meta property="og:description" content="个人主页与博客地图，展示简介、项目与文章。">
   <meta property="og:url" content="https://sdonfint.github.io/">
   <meta property="og:image" content="https://sdonfint.github.io/images/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="你的名字 | 个人主页">
+  <meta name="twitter:title" content="sdonfint | 个人主页">
   <meta name="twitter:description" content="个人主页与博客地图，展示简介、项目与文章。">
   <meta name="twitter:image" content="https://sdonfint.github.io/images/og-image.jpg">
   <link rel="canonical" href="https://sdonfint.github.io/">
@@ -33,14 +33,14 @@
     <canvas id="meshCanvas" class="mesh-canvas"></canvas>
     <div class="landing-content">
       <div class="landing-bio">
-        <h1 class="landing-name">你的名字</h1>
-        <p class="landing-subtitle">Developer / Designer / Creator</p>
+        <h1 class="landing-name">sdonfint</h1>
+        <p class="landing-subtitle">我赠予未来 / 我驻留往昔 / 我始终如一</p>
         <div class="landing-divider"></div>
         <p class="landing-desc">
-          在这里写下你的个人简介。<br>
-          可以是一段简短的自我描述，<br>
-          关于你的兴趣、专业领域，<br>
-          以及你对这个世界的看法。
+          sdonfint from NJU acoustics. <br>
+          homepage. <br>
+          当历史变成故事，故事变成传说，传说被人遗忘的时候. <br>
+          不要忘记. 
         </p>
       </div>
       <button class="enter-btn" id="enterBtn">
@@ -53,12 +53,23 @@
   <!-- ===================== MAIN INTERFACE ===================== -->
   <section id="mainInterface" class="main-interface hidden">
     <a class="github-entry" href="https://github.com/sdonfint" target="_blank" rel="noopener noreferrer">GitHub 主页</a>
+    <div class="appearance-controls" id="appearanceControls" aria-label="主题设置">
+      <div class="theme-mode-switch" role="group" aria-label="显示模式">
+        <button class="theme-mode-btn active" type="button" data-theme-mode="light">亮</button>
+        <button class="theme-mode-btn" type="button" data-theme-mode="dark">暗</button>
+        <button class="theme-mode-btn" type="button" data-theme-mode="system">跟随系统</button>
+      </div>
+      <label class="theme-accent-picker" for="themeAccentInput">
+        <span>主题色</span>
+        <input id="themeAccentInput" type="color" value="#c88a56" aria-label="选择主题色">
+      </label>
+    </div>
 
     <!-- ========== ABOUT ========== -->
     <div class="tab-panel active" id="panelAbout">
       <div class="panel-bg" data-image-base="images/og-image"></div>
       <div class="about-scroll">
-        <div class="about-hero"><div class="about-hero-overlay"></div><div class="about-hero-content"><div class="about-head-card"><h2 class="section-label">ABOUT</h2><h1 class="about-title">关于我 · Markdown 页面</h1></div></div></div>
+        <div class="about-hero"><div class="about-hero-overlay"></div><div class="about-hero-content"><div class="about-head-card"><h2 class="section-label">ABOUT</h2><h1 class="about-title">关于我</h1></div></div></div>
         <div class="about-body markdown-page">
           <div class="about-markdown-shell">
             <article class="markdown-preview" id="aboutMarkdownPreview"></article>
@@ -73,8 +84,6 @@
         博客背景图：在 style 中写 background-image: url('images/xxx.jpg');
       -->
       <div class="panel-bg" data-image-base="images/og-image"></div>
-      <div class="blog-grid-bg"></div>
-      <div class="blog-scanline"></div>
 
       <!-- 可滚动区域（折线 + 节点一起滚） -->
       <div class="blog-map-scroll" id="blogMapScroll">
@@ -101,57 +110,57 @@
             ============================================================
           -->
 
-          <div class="blog-node node-start" data-tag="起点" data-href="#" data-md="blog-posts/01-blog-origin.md">
+          <div class="blog-node node-start" data-tag="音频声学" data-href="#" data-md="blog-posts/01-音频声学20260302.md">
             <div class="node-hex"></div>
             <div class="node-badge">START</div>
             <div class="node-label">1</div>
             <div class="node-popup">
-              <h3>博客起源</h3>
-              <p>一切从这里开始</p>
+              <h3>音频声学笔记1</h3>
+              <p>2026-03-02</p>
               <a href="#">Story »</a>
             </div>
           </div>
 
-          <div class="blog-node" data-tag="技术" data-href="#" data-md="blog-posts/02-deep-learning-intro.md">
+          <div class="blog-node" data-tag="音频声学" data-href="#" data-md="blog-posts/02-音频声学20260309.md">
             <div class="node-hex"></div>
             <div class="node-badge">OPERATION</div>
             <div class="node-label">2</div>
             <div class="node-popup">
-              <h3>深度学习入门</h3>
-              <p>从零开始理解神经网络</p>
+              <h3>音频声学笔记2</h3>
+              <p>2026-03-09</p>
               <a href="#">阅读 »</a>
             </div>
           </div>
 
-          <div class="blog-node node-story" data-tag="教程" data-href="#" data-md="blog-posts/03-rust-notes.md">
+          <div class="blog-node node-story" data-tag="音频声学" data-href="#" data-md="blog-posts/03-音频声学20260316.md">
             <div class="node-hex"></div>
             <div class="node-badge">TUTORIAL</div>
             <div class="node-label">3</div>
             <div class="node-popup">
-              <h3>Rust 学习笔记</h3>
-              <p>Rust 语言核心概念与实践</p>
+              <h3>音频声学笔记3</h3>
+              <p>2026-03-16</p>
               <a href="#">阅读 »</a>
             </div>
           </div>
 
-          <div class="blog-node" data-tag="随笔" data-href="#" data-md="blog-posts/04-thinking-about-programming.md">
+          <div class="blog-node" data-tag="音频声学" data-href="#" data-md="blog-posts/04-音频声学20260323.md">
             <div class="node-hex"></div>
             <div class="node-badge">OPERATION</div>
             <div class="node-label">4</div>
             <div class="node-popup">
-              <h3>关于编程的思考</h3>
-              <p>日常编程问题和解决方案</p>
+              <h3>音频声学笔记4</h3>
+              <p>2026-03-23</p>
               <a href="#">阅读 »</a>
             </div>
           </div>
 
-          <div class="blog-node" data-tag="生活" data-href="#" data-md="blog-posts/05-winter-photos.md">
+          <div class="blog-node" data-tag="音频声学" data-href="#" data-md="blog-posts/05-音频声学20260330.md">
             <div class="node-hex"></div>
             <div class="node-badge">OPERATION</div>
             <div class="node-label">5</div>
             <div class="node-popup">
-              <h3>摄影记录：冬日随拍</h3>
-              <p>用镜头捕捉冬天的温柔</p>
+              <h3>音频声学笔记5</h3>
+              <p>2026-03-30</p>
               <a href="#">阅读 »</a>
             </div>
           </div>
@@ -268,9 +277,9 @@
 
     <!-- TABS -->
     <nav class="tab-nav" id="tabNav">
-      <button class="tab-btn active" data-tab="panelAbout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg><span class="tab-label">简介</span></button>
-      <button class="tab-btn" data-tab="panelBlog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h6M7 16h8"/></svg><span class="tab-label">博客</span></button>
-      <button class="tab-btn" data-tab="panelProjects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg><span class="tab-label">项目</span></button>
+      <button class="tab-btn active" data-tab="panelAbout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg><span class="tab-label">简介-我赠与未来</span></button>
+      <button class="tab-btn" data-tab="panelBlog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h6M7 16h8"/></svg><span class="tab-label">博客-我驻留往昔</span></button>
+      <button class="tab-btn" data-tab="panelProjects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg><span class="tab-label">项目-我始终如一</span></button>
     </nav>
     <button class="back-btn" id="backBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg><span>回到主页面</span></button>
   </section>

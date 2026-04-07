@@ -30,6 +30,26 @@
       wave: [0.5, 0.15, 0.5, 0.85, 0.5]
     };
 
+    let layoutRafId = 0;
+    let settleTimerId = 0;
+    let resizeTimerId = 0;
+
+    function requestLayout() {
+      if (layoutRafId) return;
+      layoutRafId = requestAnimationFrame(() => {
+        layoutRafId = 0;
+        layout();
+      });
+    }
+
+    function requestSettledLayout() {
+      if (settleTimerId) clearTimeout(settleTimerId);
+      settleTimerId = setTimeout(() => {
+        settleTimerId = 0;
+        requestLayout();
+      }, 120);
+    }
+
     function layout() {
       const viewH = scroll.clientHeight;
       if (!viewH || viewH < 100) return;
@@ -75,13 +95,17 @@
       const farTail = finishedCycle ? 1400 : 520;
       const totalW = x + CFG.padRight + farTail;
       map.style.width = totalW + 'px';
-      const drift = measureAlignmentDrift();
-      const correctedPts = pts.map((p) => ({
-        x: p.x + drift.avgDx,
-        y: p.y + drift.avgDy
-      }));
-      renderSvg(svg, correctedPts, totalW, viewH);
-      reportAlignment(drift);
+      let pointsForRender = pts;
+      if (debugMode) {
+        const drift = measureAlignmentDrift();
+        pointsForRender = pts.map((p) => ({
+          x: p.x + drift.avgDx,
+          y: p.y + drift.avgDy
+        }));
+        reportAlignment(drift);
+      }
+
+      renderSvg(svg, pointsForRender, totalW, viewH);
     }
 
     function measureAlignmentDrift() {
@@ -169,50 +193,52 @@
       el.style.height = h + 'px';
       el.style.left = '0px';
       el.style.top = '0px';
-      el.innerHTML = '';
+      if (!el.dataset.inited) {
+        const lineSoft = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        lineSoft.setAttribute('fill', 'none');
+        lineSoft.setAttribute('stroke', 'rgba(220,220,230,0.35)');
+        lineSoft.setAttribute('stroke-width', '4');
+        lineSoft.setAttribute('stroke-linejoin', 'round');
+        lineSoft.setAttribute('stroke-linecap', 'round');
+        el.appendChild(lineSoft);
+
+        const lineMain = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        lineMain.setAttribute('fill', 'none');
+        lineMain.setAttribute('stroke', 'rgba(220,220,230,0.6)');
+        lineMain.setAttribute('stroke-width', '3');
+        lineMain.setAttribute('stroke-linejoin', 'round');
+        lineMain.setAttribute('stroke-linecap', 'round');
+        el.appendChild(lineMain);
+
+        const lineHi = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        lineHi.setAttribute('fill', 'none');
+        lineHi.setAttribute('stroke', 'rgba(255,255,255,0.75)');
+        lineHi.setAttribute('stroke-width', '1.5');
+        lineHi.setAttribute('stroke-linejoin', 'round');
+        lineHi.setAttribute('stroke-linecap', 'round');
+        el.appendChild(lineHi);
+
+        el.dataset.inited = '1';
+      }
       
       if (pts.length < 2) return;
-      
-      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-      defs.innerHTML = '<filter id="g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
-      el.appendChild(defs);
-      
+
       const all = [{ x: 0, y: pts[0].y }, { x: pts[0].x - 30, y: pts[0].y }];
       pts.forEach(p => all.push(p));
       all.push({ x: w, y: pts[pts.length - 1].y });
       const s = all.map(p => p.x + ',' + p.y).join(' ');
-      
-      function addLine(c, wl, f) {
-        const l = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-        l.setAttribute('points', s);
-        l.setAttribute('fill', 'none');
-        l.setAttribute('stroke', c);
-        l.setAttribute('stroke-width', wl);
-        l.setAttribute('stroke-linejoin', 'round');
-        l.setAttribute('stroke-linecap', 'round');
-        if (f) l.setAttribute('filter', f);
-        el.appendChild(l);
-      }
-      
-      addLine('rgba(220,220,230,0.35)', '6', 'url(#g)');
-      addLine('rgba(220,220,230,0.6)', '3');
-      addLine('rgba(255,255,255,0.75)', '1.5');
+
+      const lineSoft = el.children[0];
+      const lineMain = el.children[1];
+      const lineHi = el.children[2];
+      lineSoft.setAttribute('points', s);
+      lineMain.setAttribute('points', s);
+      lineHi.setAttribute('points', s);
     }
 
     function go() {
-      layout();
-      setTimeout(layout, 100);
-      setTimeout(layout, 200);
-      setTimeout(layout, 500);
-      setTimeout(layout, 1000);
-
-      let rafCount = 0;
-      function settleFrames() {
-        layout();
-        rafCount += 1;
-        if (rafCount < 8) requestAnimationFrame(settleFrames);
-      }
-      requestAnimationFrame(settleFrames);
+      requestLayout();
+      requestSettledLayout();
     }
     
     const obs = new MutationObserver(() => {
@@ -224,8 +250,11 @@
     
     window.addEventListener('resize', () => {
       if (panel.classList.contains('active')) {
-        let t; clearTimeout(t);
-        t = setTimeout(go, 100);
+        if (resizeTimerId) clearTimeout(resizeTimerId);
+        resizeTimerId = setTimeout(() => {
+          resizeTimerId = 0;
+          go();
+        }, 100);
       }
     });
 

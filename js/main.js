@@ -5,6 +5,13 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  const THEME_MODE_KEY = 'site-theme-mode';
+  const THEME_ACCENT_KEY = 'site-theme-accent';
+  const THEME_MODES = ['light', 'dark', 'system'];
+  const rootEl = document.documentElement;
+  const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  let refreshMeshGradientPalette = null;
+
   function getSiteBasePath() {
     const parts = window.location.pathname.split('/').filter(Boolean);
     if (!parts.length) return '/';
@@ -54,6 +61,153 @@ document.addEventListener('DOMContentLoaded', () => {
   const mdImageModalBackdrop = document.getElementById('mdImageModalBackdrop');
   const mdImageModalClose = document.getElementById('mdImageModalClose');
   const mdImageModalImg = document.getElementById('mdImageModalImg');
+  const themeModeBtns = Array.from(document.querySelectorAll('.theme-mode-btn'));
+  const themeAccentInput = document.getElementById('themeAccentInput');
+
+  function normalizeHexColor(hex) {
+    const raw = String(hex || '').trim();
+    const short = raw.match(/^#([0-9a-f]{3})$/i);
+    if (short) {
+      const part = short[1];
+      return '#' + part[0] + part[0] + part[1] + part[1] + part[2] + part[2];
+    }
+    const long = raw.match(/^#([0-9a-f]{6})$/i);
+    return long ? ('#' + long[1].toLowerCase()) : '';
+  }
+
+  function hexToRgb(hex) {
+    const safe = normalizeHexColor(hex);
+    if (!safe) return { r: 200, g: 138, b: 86 };
+    const num = parseInt(safe.slice(1), 16);
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+
+  function rgbToHsl(rgb) {
+    const r = rgb.r / 255;
+    const g = rgb.g / 255;
+    const b = rgb.b / 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const delta = max - min;
+
+    let h = 0;
+    let s = 0;
+    const l = (max + min) / 2;
+
+    if (delta !== 0) {
+      s = delta / (1 - Math.abs(2 * l - 1));
+      if (max === r) h = ((g - b) / delta) % 6;
+      else if (max === g) h = (b - r) / delta + 2;
+      else h = (r - g) / delta + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+
+    return { h: h, s: s, l: l };
+  }
+
+  function hslToRgb(hsl) {
+    const c = (1 - Math.abs(2 * hsl.l - 1)) * hsl.s;
+    const x = c * (1 - Math.abs((hsl.h / 60) % 2 - 1));
+    const m = hsl.l - c / 2;
+    let r = 0;
+    let g = 0;
+    let b = 0;
+
+    if (hsl.h < 60) { r = c; g = x; b = 0; }
+    else if (hsl.h < 120) { r = x; g = c; b = 0; }
+    else if (hsl.h < 180) { r = 0; g = c; b = x; }
+    else if (hsl.h < 240) { r = 0; g = x; b = c; }
+    else if (hsl.h < 300) { r = x; g = 0; b = c; }
+    else { r = c; g = 0; b = x; }
+
+    return {
+      r: Math.round((r + m) * 255),
+      g: Math.round((g + m) * 255),
+      b: Math.round((b + m) * 255)
+    };
+  }
+
+  function rgbToHex(rgb) {
+    const c = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+    return '#' + c(rgb.r) + c(rgb.g) + c(rgb.b);
+  }
+
+  function withLightness(hex, delta) {
+    const hsl = rgbToHsl(hexToRgb(hex));
+    hsl.l = Math.max(0.1, Math.min(0.9, hsl.l + delta));
+    return rgbToHex(hslToRgb(hsl));
+  }
+
+  function setAccentColor(hex) {
+    const safeHex = normalizeHexColor(hex) || '#c88a56';
+    const rgb = hexToRgb(safeHex);
+    rootEl.style.setProperty('--ac', safeHex);
+    rootEl.style.setProperty('--acd', withLightness(safeHex, -0.14));
+    rootEl.style.setProperty('--acg', 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.16)');
+    if (themeAccentInput) themeAccentInput.value = safeHex;
+    localStorage.setItem(THEME_ACCENT_KEY, safeHex);
+  }
+
+  function resolveTheme(mode) {
+    if (mode === 'dark') return 'dark';
+    if (mode === 'light') return 'light';
+    return systemThemeQuery.matches ? 'dark' : 'light';
+  }
+
+  function updateThemeButtons(mode) {
+    themeModeBtns.forEach((btn) => {
+      const isActive = btn.dataset.themeMode === mode;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+
+  function updateMetaThemeColor(theme) {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) return;
+    meta.setAttribute('content', theme === 'dark' ? '#0f1218' : '#f4f6fb');
+  }
+
+  function applyThemeMode(mode, save) {
+    const safeMode = THEME_MODES.includes(mode) ? mode : 'system';
+    const resolvedTheme = resolveTheme(safeMode);
+    rootEl.setAttribute('data-theme-mode', safeMode);
+    rootEl.setAttribute('data-theme', resolvedTheme);
+    updateThemeButtons(safeMode);
+    updateMetaThemeColor(resolvedTheme);
+    if (save) localStorage.setItem(THEME_MODE_KEY, safeMode);
+    if (typeof refreshMeshGradientPalette === 'function') refreshMeshGradientPalette();
+  }
+
+  function initThemeSystem() {
+    const savedAccent = normalizeHexColor(localStorage.getItem(THEME_ACCENT_KEY)) || '#c88a56';
+    setAccentColor(savedAccent);
+
+    const savedMode = localStorage.getItem(THEME_MODE_KEY);
+    const initialMode = THEME_MODES.includes(savedMode) ? savedMode : 'light';
+    applyThemeMode(initialMode, false);
+
+    themeModeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        applyThemeMode(btn.dataset.themeMode || 'system', true);
+      });
+    });
+
+    if (themeAccentInput) {
+      themeAccentInput.addEventListener('input', () => {
+        setAccentColor(themeAccentInput.value);
+      });
+    }
+
+    systemThemeQuery.addEventListener('change', () => {
+      if ((rootEl.getAttribute('data-theme-mode') || 'light') === 'system') {
+        applyThemeMode('system', false);
+      }
+    });
+  }
+
+  initThemeSystem();
 
   /* ===========================================================
      1. MESH GRADIENT (Landing page)
@@ -62,14 +216,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!meshCanvas) return;
     const ctx = meshCanvas.getContext('2d');
     let w, h, animId;
-    const blobs = [
-      { x:.15, y:.3,  r:.45, c:[26,21,32],  vx: .0003, vy: .0002 },
-      { x:.4,  y:.6,  r:.5,  c:[15,18,30],  vx:-.0002, vy: .0003 },
-      { x:.7,  y:.2,  r:.4,  c:[20,15,25],  vx: .0002, vy:-.0001 },
-      { x:.3,  y:.8,  r:.35, c:[25,20,15],  vx:-.0001, vy:-.0002 },
-      { x:.85, y:.5,  r:.5,  c:[10,10,15],  vx: .0001, vy: .0002 },
-      { x:.5,  y:.4,  r:.3,  c:[30,22,18],  vx:-.0003, vy: .0001 },
-    ];
+    let blobs = [];
+
+    function createBlobs() {
+      const isDark = (rootEl.getAttribute('data-theme') || 'light') === 'dark';
+      if (isDark) {
+        return [
+          { x:.15, y:.3,  r:.45, c:[26,21,32],  vx: .0003, vy: .0002 },
+          { x:.4,  y:.6,  r:.5,  c:[15,18,30],  vx:-.0002, vy: .0003 },
+          { x:.7,  y:.2,  r:.4,  c:[20,15,25],  vx: .0002, vy:-.0001 },
+          { x:.3,  y:.8,  r:.35, c:[25,20,15],  vx:-.0001, vy:-.0002 },
+          { x:.85, y:.5,  r:.5,  c:[10,10,15],  vx: .0001, vy: .0002 },
+          { x:.5,  y:.4,  r:.3,  c:[30,22,18],  vx:-.0003, vy: .0001 },
+        ];
+      }
+
+      return [
+        { x:.15, y:.3,  r:.45, c:[180,196,222],  vx: .0003, vy: .0002 },
+        { x:.4,  y:.6,  r:.5,  c:[210,224,245],  vx:-.0002, vy: .0003 },
+        { x:.7,  y:.2,  r:.4,  c:[232,220,212],  vx: .0002, vy:-.0001 },
+        { x:.3,  y:.8,  r:.35, c:[222,236,252],  vx:-.0001, vy:-.0002 },
+        { x:.85, y:.5,  r:.5,  c:[244,233,223],  vx: .0001, vy: .0002 },
+        { x:.5,  y:.4,  r:.3,  c:[196,210,234],  vx:-.0003, vy: .0001 },
+      ];
+    }
+
+    function resetPalette() {
+      blobs = createBlobs();
+    }
+
+    refreshMeshGradientPalette = resetPalette;
     function resize() {
       const r = meshCanvas.getBoundingClientRect();
       w = meshCanvas.width = r.width * devicePixelRatio;
@@ -79,8 +255,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function render() {
       const cw=w/devicePixelRatio,ch=h/devicePixelRatio;
       const img=ctx.createImageData(w,h);const d=img.data;const dpr=devicePixelRatio;const step=3;
+      const isDark = (rootEl.getAttribute('data-theme') || 'light') === 'dark';
       for(let py=0;py<h;py+=step){for(let px=0;px<w;px+=step){
-        const nx=(px/dpr)/cw,ny=(py/dpr)/ch;let r=10,g=10,b=15;
+        const nx=(px/dpr)/cw,ny=(py/dpr)/ch;let r=isDark?10:238,g=isDark?10:242,b=isDark?15:248;
         for(const bl of blobs){const dx=nx-bl.x,dy=ny-bl.y;const wt=Math.exp(-(dx*dx+dy*dy)/(2*bl.r*bl.r));r+=bl.c[0]*wt;g+=bl.c[1]*wt;b+=bl.c[2]*wt}
         const af=Math.min(1,Math.max(0,(nx-.05)/.45));const alpha=Math.round((1/(1+Math.exp(-12*(af-.5))))*255);
         for(let sy=0;sy<step&&py+sy<h;sy++){for(let sx=0;sx<step&&px+sx<w;sx++){
@@ -90,6 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
       for(const bl of blobs){bl.x+=bl.vx;bl.y+=bl.vy;if(bl.x<-.1||bl.x>1.1)bl.vx*=-1;if(bl.y<-.1||bl.y>1.1)bl.vy*=-1}
       animId=requestAnimationFrame(render);
     }
+    resetPalette();
     resize(); render();
     window.addEventListener('resize',()=>{cancelAnimationFrame(animId);resize();render()});
   }
@@ -478,30 +656,59 @@ document.addEventListener('DOMContentLoaded', () => {
      =========================================================== */
   const blogScroll = document.getElementById('blogMapScroll');
   if (blogScroll) {
-    let wheelTargetX = blogScroll.scrollLeft;
-    let wheelRafId = 0;
+    let animRafId = 0;
+    let animLastTs = 0;
+    let currentX = blogScroll.scrollLeft;
+    let targetX = currentX;
+    let scrollIdleTimer = 0;
 
     function clampScrollX(x) {
       const max = Math.max(0, blogScroll.scrollWidth - blogScroll.clientWidth);
       return Math.max(0, Math.min(max, x));
     }
 
-    function stopWheelAnim() {
-      if (!wheelRafId) return;
-      cancelAnimationFrame(wheelRafId);
-      wheelRafId = 0;
+    function setScrollingState() {
+      blogScroll.classList.add('is-scrolling');
+      if (scrollIdleTimer) clearTimeout(scrollIdleTimer);
+      scrollIdleTimer = setTimeout(() => {
+        scrollIdleTimer = 0;
+        blogScroll.classList.remove('is-scrolling');
+      }, 110);
     }
 
-    function runWheelAnim() {
-      const diff = wheelTargetX - blogScroll.scrollLeft;
-      if (Math.abs(diff) < 0.6) {
-        blogScroll.scrollLeft = wheelTargetX;
-        wheelRafId = 0;
+    function stopAnim() {
+      if (!animRafId) return;
+      cancelAnimationFrame(animRafId);
+      animRafId = 0;
+      animLastTs = 0;
+    }
+
+    function animateScroll(ts) {
+      if (!animLastTs) animLastTs = ts;
+      const dt = Math.min(34, Math.max(8, ts - animLastTs));
+      animLastTs = ts;
+
+      const diff = targetX - currentX;
+      const alpha = 1 - Math.exp(-dt / 14);
+      currentX += diff * alpha;
+      currentX = clampScrollX(currentX);
+      blogScroll.scrollLeft = currentX;
+      setScrollingState();
+
+      if (Math.abs(diff) <= 0.35) {
+        currentX = targetX;
+        blogScroll.scrollLeft = currentX;
+        stopAnim();
         return;
       }
 
-      blogScroll.scrollLeft += diff * 0.18;
-      wheelRafId = requestAnimationFrame(runWheelAnim);
+      animRafId = requestAnimationFrame(animateScroll);
+    }
+
+    function ensureAnim() {
+      if (animRafId) return;
+      animLastTs = 0;
+      animRafId = requestAnimationFrame(animateScroll);
     }
 
     // 滚轮 → 水平滚动
@@ -511,37 +718,49 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
 
       const dominantDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      wheelTargetX = clampScrollX(wheelTargetX + dominantDelta * 1.28);
-
-      if (!wheelRafId) {
-        wheelRafId = requestAnimationFrame(runWheelAnim);
-      }
+      targetX = clampScrollX(targetX + dominantDelta * 1.12);
+      ensureAnim();
     }, { passive: false });
 
     // 拖拽滚动
     let dragging = false, sx, ss;
     blogScroll.addEventListener('mousedown', e => {
       if (e.target.closest('a')) return;
-      stopWheelAnim();
+      stopAnim();
       dragging = true; sx = e.clientX; ss = blogScroll.scrollLeft; e.preventDefault();
+      setScrollingState();
     });
     window.addEventListener('mousemove', e => {
       if (!dragging) return;
-      blogScroll.scrollLeft = ss - (e.clientX - sx);
-      wheelTargetX = clampScrollX(blogScroll.scrollLeft);
+      const next = clampScrollX(ss - (e.clientX - sx));
+      currentX = next;
+      targetX = next;
+      blogScroll.scrollLeft = next;
+      setScrollingState();
     });
     window.addEventListener('mouseup', () => {
       dragging = false;
-      wheelTargetX = clampScrollX(blogScroll.scrollLeft);
     });
     blogScroll.addEventListener('touchstart', e => {
-      stopWheelAnim();
+      stopAnim();
       sx = e.touches[0].clientX;
       ss = blogScroll.scrollLeft;
+      setScrollingState();
     }, { passive: true });
     blogScroll.addEventListener('touchmove', e => {
-      blogScroll.scrollLeft = ss - (e.touches[0].clientX - sx);
-      wheelTargetX = clampScrollX(blogScroll.scrollLeft);
+      const next = clampScrollX(ss - (e.touches[0].clientX - sx));
+      currentX = next;
+      targetX = next;
+      blogScroll.scrollLeft = next;
+      setScrollingState();
+    }, { passive: true });
+
+    blogScroll.addEventListener('scroll', () => {
+      if (!animRafId && !dragging) {
+        currentX = blogScroll.scrollLeft;
+        targetX = currentX;
+      }
+      setScrollingState();
     }, { passive: true });
   }
 
