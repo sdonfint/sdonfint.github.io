@@ -582,6 +582,43 @@ document.addEventListener('DOMContentLoaded', () => {
   initMarkdownImageLightbox();
 
   /* ===========================================================
+     NEWS SECTION
+     =========================================================== */
+  (function() {
+    const newsList = document.getElementById("aboutNewsList");
+    const newsMeta = document.getElementById("newsLastUpdated");
+    if (!newsList) return;
+
+    function renderNewsItem(item) {
+      var dateStr = item.date ? new Date(item.date).toLocaleDateString("zh-CN", {year:"numeric", month:"short", day:"numeric"}) : "";
+      return "<a class="news-item" href="" + item.link + "" target="_blank" rel="noopener noreferrer"><div class="news-item-header"><span class="news-item-badge">" + (item.category || "资讯") + "</span><span class="news-item-source">" + (item.source || "") + "</span>" + (dateStr ? "<span class="news-item-date">" + dateStr + "</span>" : "") + "</div><div class="news-item-title">" + item.title + "</div>" + (item.description ? "<div class="news-item-desc">" + item.description + "</div>" : "") + "<span class="news-item-link">查看原文</span></a>";
+    }
+
+    function loadNews() {
+      var newsPath = resolveSitePath("news/news.json");
+      fetch(newsPath, {cache: "no-cache"})
+        .then(function(resp) {
+          if (!resp.ok) throw new Error("HTTP " + resp.status);
+          return resp.json();
+        })
+        .then(function(data) {
+          if (data.generated_at && newsMeta) {
+            var d = new Date(data.generated_at);
+            newsMeta.textContent = "最后更新: " + d.toLocaleString("zh-CN", {year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"}) + " · 每12小时自动更新";
+          }
+          if (Array.isArray(data.items)) {
+            newsList.innerHTML = data.items.slice(0, 30).map(renderNewsItem).join("");
+          }
+        })
+        .catch(function() {
+          newsList.innerHTML = "<p style="color:var(--t3);font-size:.85rem;padding:1rem">资讯加载失败，请稍后刷新</p>";
+        });
+    }
+
+    loadNews();
+  })();
+
+  /* ===========================================================
      2. PARTICLES
      =========================================================== */
   (function() {

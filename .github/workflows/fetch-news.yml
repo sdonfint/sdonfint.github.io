@@ -1,0 +1,30 @@
+name: Fetch Daily News
+
+on:
+  schedule:
+    # 每12小时运行一次 (00:00 和 12:00 UTC)
+    - cron: '0 */12 * * *'
+  workflow_dispatch:  # 支持手动触发
+
+jobs:
+  fetch-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch news
+        run: python news/fetch_news.py
+
+      - name: Commit news data
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add news/news.json
+          git diff --staged --quiet || git commit -m "chore: update news data [skip ci]"
+          git push
