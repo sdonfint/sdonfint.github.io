@@ -217,6 +217,9 @@ body{font-family:var(--fb);background:var(--bg);color:var(--t1);overflow:hidden;
   overflow-x:auto;overflow-y:hidden;
   z-index:3;cursor:grab;
   scroll-behavior:auto;
+  overscroll-behavior: contain;;
+  contain: strict;
+  will-change: scroll-position;
 }
 .blog-map-scroll:active{cursor:grabbing}
 
@@ -235,6 +238,8 @@ body{font-family:var(--fb);background:var(--bg);color:var(--t1);overflow:hidden;
   z-index:2;
   pointer-events:none;
   overflow:visible;
+  will-change: contents;
+  transform: translateZ(0);
 }
 
 /* ---- 节点 ---- */

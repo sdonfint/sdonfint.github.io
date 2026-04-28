@@ -748,16 +748,12 @@ document.addEventListener('DOMContentLoaded', () => {
       animRafId = requestAnimationFrame(animateScroll);
     }
 
-    // 滚轮 → 水平滚动
+    // 滚轮 → 水平滚动（使用原生惯性，浏览器自带优化）
     blogScroll.addEventListener('wheel', e => {
       const panel = document.getElementById('panelBlog');
       if (!panel || !panel.classList.contains('active')) return;
-      e.preventDefault();
-
-      const dominantDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      targetX = clampScrollX(targetX + dominantDelta * 1.12);
-      ensureAnim();
-    }, { passive: false });
+      // 不阻止默认行为，让浏览器原生惯性处理滚动
+    }, { passive: true });
 
     // 拖拽滚动
     let dragging = false, sx, ss;
