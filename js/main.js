@@ -611,7 +611,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         })
         .catch(function() {
-          newsList.innerHTML = "<p style="color:var(--t3);font-size:.85rem;padding:1rem">资讯加载失败，请稍后刷新</p>";
+          newsList.innerHTML = '<p style="color:var(--t3);font-size:.85rem;padding:1rem">资讯加载失败，请稍后刷新</p>';
         });
     }
 
