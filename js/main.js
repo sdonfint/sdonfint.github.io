@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderNewsItem(item) {
       var dateStr = item.date ? new Date(item.date).toLocaleDateString("zh-CN", {year:"numeric", month:"short", day:"numeric"}) : "";
-      return "<a class="news-item" href="" + item.link + "" target="_blank" rel="noopener noreferrer"><div class="news-item-header"><span class="news-item-badge">" + (item.category || "资讯") + "</span><span class="news-item-source">" + (item.source || "") + "</span>" + (dateStr ? "<span class="news-item-date">" + dateStr + "</span>" : "") + "</div><div class="news-item-title">" + item.title + "</div>" + (item.description ? "<div class="news-item-desc">" + item.description + "</div>" : "") + "<span class="news-item-link">查看原文</span></a>";
+      return '<a class="news-item" href="' + item.link + '" target="_blank" rel="noopener noreferrer"><div class="news-item-header"><span class="news-item-badge">' + (item.category || "资讯") + '</span><span class="news-item-source">' + (item.source || "") + "</span>" + (dateStr ? '<span class="news-item-date">' + dateStr + "</span>" : "") + '</div><div class="news-item-title">' + item.title + '</div>' + (item.description ? '<div class="news-item-desc">' + item.description + "</div>" : "") + '<span class="news-item-link">查看原文</span></a>';
     }
 
     function loadNews() {
