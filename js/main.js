@@ -841,22 +841,9 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', () => {
           const scroll = document.getElementById('blogMapScroll');
           if (!scroll) return;
-          const colSpacing = 50;
-          const padLeft = 80;
-          const cycleGap = 80;
-          const wavePatternLen = 5;
-          
-          let currentX = padLeft;
-          for (let i = 0; i < item.index; i++) {
-            const waveIndex = i % wavePatternLen;
-            if (waveIndex === wavePatternLen - 1) {
-              currentX += colSpacing + cycleGap;
-            } else {
-              currentX += colSpacing;
-            }
-          }
-          
-          const targetX = currentX - scroll.clientWidth / 2;
+          // 从节点实际位置（blog-map.js 布局后设置）计算滚动目标
+          const nodeX = Number(item.node.dataset.pointX) || 0;
+          const targetX = nodeX - scroll.clientWidth / 2;
           scroll.scrollTo({ left: Math.max(0, targetX), behavior: 'smooth' });
 
           if (item.mdPath) {
